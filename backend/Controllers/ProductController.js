@@ -36,7 +36,7 @@ async function createproductController(req, res) {
 
     await StoreModel.findOneAndUpdate(
       { _id: store },
-      { $push: { products: product._id } },
+      { $push: { product: product._id } },
       { new: true }
     );
 
