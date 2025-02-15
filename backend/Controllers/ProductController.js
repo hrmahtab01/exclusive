@@ -6,7 +6,7 @@ const StoreModel = require("../Model/storeModel");
 const { error } = require("console");
 
 async function createproductController(req, res) {
-  const { name, description, sellingprice, discountprice, category, store } =
+  const { name, description, sellingprice, discountprice, category, store , stock } =
     req.body;
 
   const image = req.files ? req.files.map((img) => img.filename) : [];
@@ -25,6 +25,7 @@ async function createproductController(req, res) {
       sellingprice,
       discountprice,
       category,
+      stock,
       image: image.map((img) => process.env.host_url + img),
     });
 
