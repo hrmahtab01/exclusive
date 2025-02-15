@@ -32,20 +32,18 @@ async function incrementcartController(req, res) {
   const { id } = req.params;
 
   try {
-    const cart = await cartModel.findOne({ _id: id });
+    const cart = await cartModel.findOne({ _id: id }).populate("products");
 
     if (!cart) {
       return res
         .status(404)
         .send({ success: false, nessage: "cart not found" });
     }
-    const product = await productModel.findOne({ _id: cart.products });
 
-    if (product.stock > cart.quantity) {
+    if (cart.products.stock > cart.quantity) {
       cart.quantity++;
     } else {
-      return res.status(400).send({
-        success: false,
+      return res.status(200).send({
         message: "product out of stock",
       });
     }
@@ -75,6 +73,11 @@ async function decrementcartController(req, res) {
     }
     if (decrementcart.quantity > 1) {
       decrementcart.quantity--;
+    } else {
+      return res.status(404).send({
+        success: false,
+        message: "your quantity is less than 1",
+      });
     }
     await decrementcart.save();
     return res.status(200).send({
@@ -86,9 +89,35 @@ async function decrementcartController(req, res) {
     return res.status(500).send({ success: false, message: error.message });
   }
 }
+
+async function deletecartController(req, res) {
+  const { id } = req.params;
+
+  try {
+    const deletecart = await cartModel.findOneAndDelete({ _id: id });
+    if (!deletecart) {
+      return res
+        .status(404)
+        .send({ success: false, message: "cart not found" });
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "cart product delete successfully",
+      data: deletecart,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      success: false,
+      message: error.message || "something went wrong",
+    });
+  }
+}
+
 module.exports = {
   addtocartController,
   getsingleussercart,
   incrementcartController,
   decrementcartController,
+  deletecartController,
 };
